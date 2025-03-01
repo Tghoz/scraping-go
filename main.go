@@ -11,11 +11,12 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/imroc/req/v3"
-	"github.com/joho/godotenv"
+
 )
 
 var (
-	url        = "https://store.steampowered.com/app/2050650/Resident_Evil_4/"
+	
+	url        = os.Getenv("URL")
 	sleepTime  = 8 * time.Second //1 * time.Minute
 	maxRetries = 3
 	browser    = req.DefaultClient().ImpersonateChrome()
@@ -29,9 +30,11 @@ type Data struct {
 }
 
 func main() {
+
 	count := 0
 	for {
 		inf := DataCollector(browser)
+		log.Println(inf.Title, " ", inf.Price)
 		if inf.Error != nil {
 			SendAlert(inf.Error.Error(), inf.Error.Error())
 			count += 1
@@ -51,7 +54,6 @@ func main() {
 }
 
 func SendAlert(price string, title string) error {
-	godotenv.Load()
 	from := os.Getenv("EMAIL")
 	password := os.Getenv("PASS") // Usa contraseñas de aplicación para Gmail
 	to := []string{"govannytgoz@gmail.com"}
