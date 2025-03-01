@@ -36,7 +36,7 @@ func init() {
 	}
 	u, _ := url.Parse(baseURL)
 	q := u.Query()
-	q.Add("cc", "us")     // Código de país para USD
+	q.Add("cc", "ar")     // Código de país para USD
 	q.Add("l", "spanish") // Idioma
 	u.RawQuery = q.Encode()
 	urlRegion = u.String()
@@ -47,7 +47,7 @@ func main() {
 	count := 0
 	for {
 		inf := DataCollector(browser)
-		log.Println(inf.Title, " ", inf.Price)
+		fmt.Println(inf.Title, " ", inf.Price)
 		if inf.Error != nil {
 			SendAlert(inf.Error.Error(), inf.Error.Error())
 			count += 1
@@ -146,7 +146,7 @@ func DataCollector(browser *req.Client) Data {
 		}
 	})
 	collector.OnRequest(func(r *colly.Request) {
-		log.Println("Visitando", r.URL)
+		fmt.Println("Visitando", r.URL)
 	})
 
 	err := collector.Visit(urlRegion)
