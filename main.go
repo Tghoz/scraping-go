@@ -11,13 +11,11 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/imroc/req/v3"
-
 )
 
 var (
-	
-	url        = os.Getenv("URL")
-	sleepTime  = 8 * time.Second //1 * time.Minute
+	url        = "https://store.steampowered.com/app/2050650/Resident_Evil_4/"
+	sleepTime  = 5 * time.Minute
 	maxRetries = 3
 	browser    = req.DefaultClient().ImpersonateChrome()
 )
