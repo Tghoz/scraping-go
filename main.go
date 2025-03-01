@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/smtp"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -14,10 +15,11 @@ import (
 )
 
 var (
-	url        = "https://store.steampowered.com/app/2050650/Resident_Evil_4/"
+	baseURL    = os.Getenv("URL")
 	sleepTime  = 5 * time.Minute
 	maxRetries = 3
 	browser    = req.DefaultClient().ImpersonateChrome()
+	urlRegion  string
 )
 
 type Data struct {
@@ -25,6 +27,19 @@ type Data struct {
 	Price    string
 	Discount string
 	Error    error
+}
+
+func init() {
+	// Construir URL con parámetros de región y moneda
+	if baseURL == "" {
+		log.Fatalln("no url ")
+	}
+	u, _ := url.Parse(baseURL)
+	q := u.Query()
+	q.Add("cc", "us")     // Código de país para USD
+	q.Add("l", "spanish") // Idioma
+	u.RawQuery = q.Encode()
+	urlRegion = u.String()
 }
 
 func main() {
@@ -100,6 +115,14 @@ func DataCollector(browser *req.Client) Data {
 	collector.SetClient(&http.Client{
 		Transport: browser.Transport,
 	})
+
+	// Cookie para forzar región USD
+	collector.OnRequest(func(r *colly.Request) {
+		log.Println("Visitando", r.URL)
+		r.Headers.Set("Cookie", "steamCountry=US%3D") // US= codificado
+		r.Headers.Set("Accept-Language", "en-US,en;q=0.9")
+	})
+
 	collector.OnHTML(".page_content_ctn", func(e *colly.HTMLElement) {
 		title := e.ChildText("div#appHubAppName")
 		price := e.DOM.Find(".game_purchase_price.price").First()
@@ -125,7 +148,8 @@ func DataCollector(browser *req.Client) Data {
 	collector.OnRequest(func(r *colly.Request) {
 		log.Println("Visitando", r.URL)
 	})
-	err := collector.Visit(url)
+
+	err := collector.Visit(urlRegion)
 	if err != nil {
 		data.Error = err
 	}
