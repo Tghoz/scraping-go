@@ -118,7 +118,6 @@ func DataCollector(browser *req.Client) Data {
 
 	// Cookie para forzar región USD
 	collector.OnRequest(func(r *colly.Request) {
-		log.Println("Visitando", r.URL)
 		r.Headers.Set("Cookie", "steamCountry=US%3D") // US= codificado
 		r.Headers.Set("Accept-Language", "en-US,en;q=0.9")
 	})
